@@ -23,7 +23,6 @@ export default {
     'react-proptypes',
     'lodash',
     '@material-ui/core',
-    'react-datetime',
     'axios'
   ],
   plugins: [
