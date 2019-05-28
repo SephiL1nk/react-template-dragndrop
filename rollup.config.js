@@ -23,7 +23,10 @@ export default {
     'react-proptypes',
     'lodash',
     '@material-ui/core',
-    'axios'
+    'axios',
+    '@material-ui/icons',
+    'react-beautiful-dnd',
+    '@material-ui/utils'
   ],
   plugins: [
     resolve({ preferBuiltins: false }),

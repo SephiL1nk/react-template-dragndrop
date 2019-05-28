@@ -1,13 +1,5 @@
 import React, { Component } from 'react'
+import Templating from './Templating.jsx'
+import Preview from './preview/Preview.jsx'
 
-class List extends Component {
-  render() {
-    return (
-      <React.Fragment>
-        Your work starts here!   
-      </React.Fragment>
-    )
-  }
-}
-
-export default List
+export { Templating, Preview }
