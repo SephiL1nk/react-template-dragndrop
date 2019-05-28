@@ -1,6 +1,6 @@
 {
-  "name": "sogec-react-module-boilerplate",
-  "version": "1.0.0",
+  "name": "sogec-react-template-dragndrop",
+  "version": "0.1.0",
   "description": "Boilerplate for react modules components with rollup",
   "main": "dist/module.js",
   "style": "dist/styles.css",
