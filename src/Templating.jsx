@@ -34,6 +34,7 @@ class Templating extends Component {
         containers: {},
         blocks: {}
       },
+      
       index: 0, //Index to be able to track the number of container and always increment them, even after deleting some of them.
       parameters: {
         //Default direction parameter for the drag'n'drop context.
@@ -210,7 +211,7 @@ class Templating extends Component {
     const { optional, id } = params
     return(<div className='block_actions'>
             <PopoverActions>
-              {!_.isUndefined(this.props.blockActions) ? this.props.blockActions :
+              {!_.isUndefined(this.props.blockActions) ? this.props.blockActions({...optional, id: id, type: 'text'}) :
                 <Button onClick={() => this.addContent({...optional, id: id, type: 'text'})}>
                 {!_.isUndefined(this.props.addContentText) ? 
                   this.props.addContentText 

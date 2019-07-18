@@ -4,6 +4,7 @@ import { Draggable } from 'react-beautiful-dnd'
 import DroppableComp from './DroppableComp.jsx'
 import _ from 'lodash'
 import ActionsComp from './ActionsComp.jsx'
+import ComponentAsContent from './ComponentAsContent.jsx'
 
 class DraggableComp extends Component {
   constructor() {
@@ -50,7 +51,7 @@ class DraggableComp extends Component {
           xs={grid.xs}
         >
           {/* A Draggable component can be dragged around it's own Droppable container : https://github.com/atlassian/react-beautiful-dnd/blob/master/docs/api/draggable.md */}
-          <Draggable key={id} draggableId={draggableKey+'_'+id} index={this.props.index}>
+          <Draggable key={id} draggableId={draggableKey+'_'+id} index={this.props.index} >
             {(provided) => (
               <div 
                 {...provided.draggableProps}
@@ -64,7 +65,15 @@ class DraggableComp extends Component {
                   {/* Page Content */}
                   {_.isNull(content) || _.isUndefined(content) && _.isEmpty(index) ? 
                     !_.isUndefined(containerAction) && type === 'container' && containerAction({newIndex}) || !_.isUndefined(action) && type === 'block' && action : 
-                    <div dangerouslySetInnerHTML={this.stringToHtml(content)} />}
+                    <React.Fragment>
+                      {_.isString((content)) ?
+                      <div dangerouslySetInnerHTML={this.stringToHtml(content)} /> : 
+                      <ComponentAsContent>
+                        {!_.isEmpty(content) && content}
+                      </ComponentAsContent>
+                    }
+                    </React.Fragment>
+                    }
                   {/* If index is defined, it means that it can continue to go deeper and create more nested lists */}
                   {!_.isUndefined(index) && !_.isEmpty(index) && 
                     <DroppableComp

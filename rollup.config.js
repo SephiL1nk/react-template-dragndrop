@@ -21,12 +21,11 @@ export default {
     'react', 
     'react-dom',
     'react-proptypes',
-    'lodash',
     '@material-ui/core',
+    '@material-ui/styles',
     'axios',
-    '@material-ui/icons',
-    'react-beautiful-dnd',
-    '@material-ui/utils'
+    'lodash',
+    'react-beautiful-dnd'
   ],
   plugins: [
     resolve({ preferBuiltins: false }),
@@ -52,7 +51,7 @@ export default {
       plugins: ["@babel/plugin-proposal-class-properties",  "@babel/plugin-proposal-export-default-from"],
       exclude: [
         'node_modules/**'
-      ]
+      ],
     }),
     commonjs({
       include: 'node_modules/**',

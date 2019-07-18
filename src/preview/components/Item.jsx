@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import _ from 'lodash'
 /** Components */
 import { Grid } from '@material-ui/core'
+import ComponentAsContent from '../../components/ComponentAsContent.jsx'
 
 class Item extends Component {
   constructor() {
@@ -43,8 +44,13 @@ class Item extends Component {
           xs={grid.xs}
         >
           {!_.isNull(block.content) && 
+            _.isString(block.content) &&
             <React.Fragment key={'block-content-'+block.id}>
-              {<div dangerouslySetInnerHTML={this.stringToHtml(block.content)} />}
+            {_.isString((content)) ?
+              <div dangerouslySetInnerHTML={this.stringToHtml(content)} /> : 
+              <ComponentAsContent>
+                {!_.isEmpty(content) && content}
+              </ComponentAsContent>}
             </React.Fragment>
           }
         </Grid>
