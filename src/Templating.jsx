@@ -105,7 +105,7 @@ class Templating extends Component {
    * @param type String is mandatory. Determines which type of creation to do
    * @param optional Object is optional. Pass parameters that are optionals or for a specific case (e.g blocks parameters)
    */
-  addItem = (type, optional) => {  
+  addItem = (type, optional) => new Promise(resolve => {
     let newIndex = this.state.index
     switch(type) {
       case 'container': 
@@ -121,7 +121,8 @@ class Templating extends Component {
       ...this.state,
       index: newIndex
     }, () => this.props.update({...this.formatTemplate(), type: 'addItem'}))
-  }
+  })  
+    
 
   /**
    * Add a new container which contains at start a button to add new contents
@@ -308,17 +309,18 @@ class Templating extends Component {
 
   save = () => this.props.update({...this.formatTemplate(true), type: 'save'})
 
-  updatePage = (page) => {
+  updatePage = (page) => new Promise(resolve => {
     page = _.isEmpty(page) ? this.createStructure() : page
     page = {...page, actions: <React.Fragment>
-    <PopoverActions>
-      <Button onClick={() => this.addItem('container', {parent: 'page'})}>Add container</Button>
-      <Button onClick={this.save}>Save template</Button>
-    </PopoverActions>
-  </React.Fragment>}
+      <PopoverActions>
+        <Button onClick={() => this.addItem('container', {parent: 'page'})}>Add container</Button>
+        <Button onClick={this.save}>Save template</Button>
+      </PopoverActions>
+    </React.Fragment>}
 
-    this.setState({page, index: _.size(page.containers)}) 
-  }
+    this.setState({page, index: _.size(page.containers)}, () => resolve)
+  }) 
+
   /**
    * Rendering function
    */
