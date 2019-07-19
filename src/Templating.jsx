@@ -13,37 +13,50 @@ import TwoBlockIcon from '@material-ui/icons/Filter2'
 import ThreeBlockIcon from '@material-ui/icons/Filter3'
 import FourBlockIcon from '@material-ui/icons/Filter4'
 import DeleteIcon from '@material-ui/icons/Clear'
+import { formatPage } from './services/manager.jsx'
 
 class Templating extends Component {
   constructor() {
     super()
     this.state = {
-      page: {
-        type: 'page',
-        index: [],
-        structure: getSemanticAndCss({element: '.main_page', parent: 'main_template'}),
-        actions:
-          <React.Fragment>
-            <PopoverActions>
-              <Button onClick={() => this.addItem('container', {parent: 'page'})}>Add container</Button>
-              <Button onClick={this.save}>Save template</Button>
-            </PopoverActions>
-          </React.Fragment>
-        ,
-        containers: {},
-        blocks: {}
-      },
-      
+      page: {},
       index: 0, //Index to be able to track the number of container and always increment them, even after deleting some of them.
       parameters: {
         //Default direction parameter for the drag'n'drop context.
-        direction: 'vertical',
-        
+        direction: 'vertical',    
       }
     }
   }
 
-  componentDidUpdate(prevProps) {
+  // Page structure
+  createStructure = () => {
+    return {
+      type: 'page',
+      index: [],
+      structure: getSemanticAndCss({element: '.main_page', parent: 'main_template'}),
+      actions: null,
+      containers: {},
+      blocks: {}
+    }
+  }
+
+  componentDidMount = () => {
+    let { page } = this.state
+    
+    page = {
+      ...this.createStructure(),
+      actions: <React.Fragment>
+                    <PopoverActions>
+                      <Button onClick={() => this.addItem('container', {parent: 'page'})}>Add container</Button>
+                      <Button onClick={this.save}>Save template</Button>
+                    </PopoverActions>
+                  </React.Fragment>
+    }
+
+    this.setState({page})
+  }
+
+  componentDidUpdate = prevProps => {
     if (!_.isEqual(prevProps.page, this.props.page)) {
       //New state for the template dragndrop. Omit React Actions because it throws an error
       const page = _.omit(this.props.page, 'actions')
@@ -287,45 +300,25 @@ class Templating extends Component {
     })
   }
   
-  formatTemplate = () => {
-
+  formatTemplate = (save = false) => {
     let { name } = this.props
     let { page } = _.cloneDeep(this.state)
-    let containers = {}
-    let blocks = {}
-    const pageTemplate = _.pick(page, ['index', 'type', 'structure'])
-    _.map(page.containers, container => {  
-      _.set(containers, container.id, _.pick(container, ['structure', 'type', 'index', 'id']))
-    })
-
-    /** Get only what we want in the block structure */
-    _.map(page.blocks, block => {
-      _.set(blocks, block.id, _.pick(block, ['id', 'content', 'grid', 'structure']))
-    })
-
-
-    const view = {
-      page: pageTemplate,
-      containers: containers,
-      blocks: blocks
-    }
-
-    //Destroy every actions, as it can't be saved in DB
-    _.map(page.blocks, block => {
-      _.unset(block, 'action')
-    })
-    //Destroy every actions, as it can't be saved in DB
-    _.map(page.containers, container => {
-      _.unset(container, 'action')
-    })
-
-    const template = page
-
-    return {view, template, name}
+    return formatPage({name, page, save})
   }
 
-  save = () => this.props.save(this.formatTemplate())
+  save = () => this.props.update({...this.formatTemplate(true), type: 'save'})
 
+  updatePage = (page) => {
+    page = _.isEmpty(page) ? this.createStructure() : page
+    page = {...page, actions: <React.Fragment>
+    <PopoverActions>
+      <Button onClick={() => this.addItem('container', {parent: 'page'})}>Add container</Button>
+      <Button onClick={this.save}>Save template</Button>
+    </PopoverActions>
+  </React.Fragment>}
+
+    this.setState({page, index: _.size(page.containers)}) 
+  }
   /**
    * Rendering function
    */
@@ -357,9 +350,8 @@ class Templating extends Component {
 
 Templating.defaultProps = {
   name: 'template',
-  preview: () => {},
-  save: () => {},
-  update: () => {}
+  update: () => {},
+  updatePage: () => {}
 }
 
 /**
