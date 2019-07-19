@@ -27,7 +27,6 @@ class Templating extends Component {
             <PopoverActions>
               <Button onClick={() => this.addItem('container', {parent: 'page'})}>Add container</Button>
               <Button onClick={this.save}>Save template</Button>
-              <Button onClick={this.preview}>Preview template</Button>
             </PopoverActions>
           </React.Fragment>
         ,
@@ -85,9 +84,7 @@ class Templating extends Component {
       index.splice(destination.index, 0, match[3])
     }
 
-    if (_.isFunction(this.props.onDragEnd)) {
-      this.props.onDragEnd(this.formatTemplate())
-    }
+    this.props.update({...this.formatTemplate(), type: 'onDragEnd'})
   }
 
   /**
@@ -110,7 +107,7 @@ class Templating extends Component {
     this.setState({
       ...this.state,
       index: newIndex
-    })
+    }, () => this.props.update({...this.formatTemplate(), type: 'addItem'}))
   }
 
   /**
@@ -144,7 +141,7 @@ class Templating extends Component {
       page: {
         ...page 
       }
-    })
+    }, () => this.props.update({...this.formatTemplate(), type: 'addContainer'}))
   }
 
   /**
@@ -187,7 +184,7 @@ class Templating extends Component {
         page: {
           ...page,
         }
-      })
+      }, () => this.props.update({...this.formatTemplate(), type: 'addBlock'}))
     })
   }
 
@@ -238,7 +235,7 @@ class Templating extends Component {
       page: {
         ...page,
       }
-    })
+    }, () => this.props.update({...this.formatTemplate(), type: 'addContent'}))
     
   }
 
@@ -292,6 +289,7 @@ class Templating extends Component {
   
   formatTemplate = () => {
 
+    let { name } = this.props
     let { page } = _.cloneDeep(this.state)
     let containers = {}
     let blocks = {}
@@ -323,23 +321,11 @@ class Templating extends Component {
 
     const template = page
 
-    return {view, template}
+    return {view, template, name}
   }
 
-  save = () => {
-    let template = this.formatTemplate()    
+  save = () => this.props.save(this.formatTemplate())
 
-    if (_.isFunction(this.props.save)) {
-      this.props.save(template)
-    }
-  }
-
-  preview = () => {
-    let template = this.formatTemplate()    
-    if (_.isFunction(this.props.preview)) {
-      this.props.preview(template)
-    }
-  }
   /**
    * Rendering function
    */
@@ -367,6 +353,13 @@ class Templating extends Component {
       </React.Fragment>
     )
   }
+}
+
+Templating.defaultProps = {
+  name: 'template',
+  preview: () => {},
+  save: () => {},
+  update: () => {}
 }
 
 /**
