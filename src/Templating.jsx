@@ -120,7 +120,7 @@ class Templating extends Component {
     this.setState({
       ...this.state,
       index: newIndex
-    }, () => this.props.update({...this.formatTemplate(), type: 'addItem'}))
+    }, () => this.props.update({...this.formatTemplate(), type: 'addItem', index: newIndex}))
   })  
     
 
@@ -238,7 +238,7 @@ class Templating extends Component {
   addContent = (params) => {
     let { page } = this.state
     let block = page.blocks[params.id]
-
+    console.log(params)
     let content = _.isFunction(this.props.addContent) ? 
       this.props.addContent(params)
       : <div>Add function addContent to add content in here.</div>
@@ -321,6 +321,10 @@ class Templating extends Component {
     this.setState({page, index: _.size(page.containers)}, () => resolve)
   }) 
 
+  getCurrentPageContext = () => {
+    const { page, index } = this.state
+    return { page, index }
+  }
   /**
    * Rendering function
    */
