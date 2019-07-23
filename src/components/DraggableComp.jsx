@@ -37,8 +37,6 @@ class DraggableComp extends Component {
 
     const newIndex = id.match(/[0-9]+$/g)[0]
 
-    console.log(parameters)
-
     return (
       <React.Fragment>
         {/* Grid Item */}
