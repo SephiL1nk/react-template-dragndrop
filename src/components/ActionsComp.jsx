@@ -32,7 +32,6 @@ class ActionsComp extends Component {
     const { actions } = this.state
     const { element, parent, parameters } = this.props
     const { disableDelete } = parameters
-    console.log(element, parent, actions)
     return (
       <React.Fragment>
         {!_.isUndefined(actions) && _.isObject(actions) ? 
