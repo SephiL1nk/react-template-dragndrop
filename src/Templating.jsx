@@ -107,13 +107,14 @@ class Templating extends Component {
    */
   addItem = (type, optional) => new Promise(resolve => {
     let newIndex = this.state.index
+    let blocks = []
     switch(type) {
       case 'container': 
         newIndex = newIndex+1
         this.addContainer(newIndex, optional)
       break
       case 'block': 
-        this.addBlock(optional)
+        blocks = this.addBlock(optional)
       break
     }
 
@@ -121,7 +122,9 @@ class Templating extends Component {
       ...this.state,
       index: newIndex
     }, () => this.props.update({...this.formatTemplate(), type: 'addItem', index: newIndex}))
-  })  
+  
+    return resolve({...this.formatTemplate(), type: 'addItem', index: newIndex, blocks: blocks})
+  }) 
     
 
   /**
@@ -173,12 +176,13 @@ class Templating extends Component {
     /** Get the page blocks and containers */
     let { page } = this.state
     let { blocks, containers } = page
+    let ids = []
     /** Number of blocks to create */
     _.times(blockNumber, (index) => {
       /** Create a uniqID to avoid repetition of ID's in the blocks object */
       let uniqId = (containerIndex*10)+index
       let id = 'blocks'+uniqId
-
+      ids.push(id)
       const newBlocks = {
         type: 'block',
         id: id,
@@ -200,6 +204,8 @@ class Templating extends Component {
         }
       }, () => this.props.update({...this.formatTemplate(), type: 'addBlock'}))
     })
+
+    return ids
   }
 
   containerAction = (params) => {
@@ -238,7 +244,6 @@ class Templating extends Component {
   addContent = (params) => {
     let { page } = this.state
     let block = page.blocks[params.id]
-    console.log(params)
     let content = _.isFunction(this.props.addContent) ? 
       this.props.addContent(params)
       : <div>Add function addContent to add content in here.</div>
@@ -251,6 +256,7 @@ class Templating extends Component {
       }
     }, () => this.props.update({...this.formatTemplate(), type: 'addContent'}))
     
+    return Promise.resolve(true)
   }
 
   /**
@@ -321,10 +327,6 @@ class Templating extends Component {
     this.setState({page, index: _.size(page.containers)}, () => resolve)
   }) 
 
-  getCurrentPageContext = () => {
-    const { page, index } = this.state
-    return { page, index }
-  }
   /**
    * Rendering function
    */
