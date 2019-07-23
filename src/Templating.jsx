@@ -252,10 +252,12 @@ class Templating extends Component {
   addContent = (params) => {
     let { page } = this.state
     let block = page.blocks[params.id]
-    let content = _.isFunction(this.props.addContent) ? 
+    let result = _.isFunction(this.props.addContent) ? 
       this.props.addContent(params)
-      : <div>Add function addContent to add content in here.</div>
-      block.content = content
+      : {content : (<div>Add function addContent to add content in here.</div>)}
+      block.content = result.content
+
+      block.parameters = {...block.parameters, ...result.parameters}
      /** setState */
     this.setState({
       ...this.state,
@@ -332,7 +334,7 @@ class Templating extends Component {
       </PopoverActions>
     </React.Fragment>}
 
-    this.setState({page, index: _.size(page.containers)}, () => resolve)
+    this.setState({page, index: _.size(page.containers)}, () => resolve({page, index: _.size(page.containers)}))
   }) 
 
   /**
