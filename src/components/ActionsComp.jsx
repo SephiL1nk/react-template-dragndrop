@@ -37,9 +37,13 @@ class ActionsComp extends Component {
       <React.Fragment>
         {!_.isUndefined(actions) && _.isObject(actions) ? 
           _.map(actions, (action, index) => {
-            return (
-              <Button key={'buttonAction'+index} disabled={!_.isNil(disableDelete) ? disableDelete : false} onClick={() => this.updateElementAction({...action, element, parent})}>{action.icon}</Button>
-            )
+            if (action.type === 'deleteAction') {
+              return (
+                <Button key={'buttonAction'+index} disabled={!_.isNil(disableDelete) ? disableDelete : false} onClick={() => this.updateElementAction({...action, element, parent})}>{action.icon}</Button>
+              )
+            } else {
+              return (<Button key={'buttonAction'+index} disabled={!_.isNil(action.disabled) ? action.disabled : false} onClick={() => this.updateElementAction({...action, element, parent})}>{action.icon}</Button>)
+            } 
           }) : null
         }
       </React.Fragment>
