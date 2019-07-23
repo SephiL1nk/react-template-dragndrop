@@ -8,7 +8,7 @@ class ActionsComp extends Component {
     this.state = {
       actions: [
         {
-          type: 'delete',
+          type: 'deleteAction',
           icon: <DeleteIcon />
         }
       ]
@@ -17,11 +17,9 @@ class ActionsComp extends Component {
 
   componentWillMount() {
     const { actions } = this.props
-
     if (!_.isUndefined(actions) && _.isObject(actions)) {
       _.merge(this.state.actions, actions)
     }
-    
   }
 
   updateElementAction = (params) => {
@@ -29,21 +27,28 @@ class ActionsComp extends Component {
       this.props.callbackActions(params)
     }
   }
+
   render() {
     const { actions } = this.state
-    const { element, parent } = this.props
+    const { element, parent, parameters } = this.props
+    const { disableDelete } = parameters
+    console.log(element, parent, actions)
     return (
       <React.Fragment>
         {!_.isUndefined(actions) && _.isObject(actions) ? 
           _.map(actions, (action, index) => {
             return (
-              <Button key={'buttonAction'+index} onClick={() => this.updateElementAction({...action, element, parent})}>{action.icon}</Button>
+              <Button key={'buttonAction'+index} disabled={!_.isNil(disableDelete) ? disableDelete : false} onClick={() => this.updateElementAction({...action, element, parent})}>{action.icon}</Button>
             )
           }) : null
         }
       </React.Fragment>
     )
   }
+}
+
+ActionsComp.defaultProps = {
+  parameters: {}
 }
 
 export default ActionsComp

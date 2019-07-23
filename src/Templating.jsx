@@ -134,6 +134,8 @@ class Templating extends Component {
     /** get page, containers and the page index */
     let { page } = this.state
     let { containers, index } = page
+    /** Get optional parameters */
+    const { disableDelete } = optional
     /** Create a new index for the container based on the newIndex property */
     let id = 'container' + newIndex
     
@@ -143,6 +145,7 @@ class Templating extends Component {
       parameters: {
         //Default direction parameter for the drag'n'drop context.
         direction: 'horizontal',
+        disableDelete: !_.isNil(disableDelete) ? disableDelete : false
       },
       id: id,
       index: [],
@@ -176,6 +179,8 @@ class Templating extends Component {
     /** Get the page blocks and containers */
     let { page } = this.state
     let { blocks, containers } = page
+    /** Get optional parameters */
+    const { disableDelete } = optional
     let ids = []
     /** Number of blocks to create */
     _.times(blockNumber, (index) => {
@@ -186,6 +191,9 @@ class Templating extends Component {
       const newBlocks = {
         type: 'block',
         id: id,
+        parameters: {
+          disableDelete: !_.isNil(disableDelete) ? disableDelete : false
+        },
         action: this.blockAction({optional, id}),
         content: null,
         structure: getSemanticAndCss({element: '.'+id, parent: '.'+parent, defaultParent: '.'+containerIndex}),
@@ -265,7 +273,7 @@ class Templating extends Component {
   callbackActions = (params) => {
     let newState = this.state
     switch(params.type) {
-      case 'delete': 
+      case 'deleteAction': 
         newState = this.deleteComponent(params)
         break
       default:
