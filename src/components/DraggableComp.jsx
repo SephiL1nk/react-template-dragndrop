@@ -31,12 +31,11 @@ class DraggableComp extends Component {
    * Rendering
    */
   render() {
-    const { id, action, index, type, content } = this.props.item
+    const { id, action, index, type, content, parameters } = this.props.item
     const { draggableKey, actions, item, page, parentNode, containerAction } = this.props
     const { grid } = this.state
 
     const newIndex = id.match(/[0-9]+$/g)[0]
-
 
     return (
       <React.Fragment>
@@ -60,7 +59,7 @@ class DraggableComp extends Component {
               >
                 <Paper style={{padding: '25px 25px 25px 25px', margin: '5px 5px 5px 5px'}}>
                   {/* Block/Container global Actions */}
-                  <ActionsComp key={'actions_'+id} actions={actions} element={id} parent={parentNode} callbackActions={this.props.callbackActions}/>
+                  <ActionsComp key={'actions_'+id} actions={actions} element={id} parent={parentNode} parameters={parameters} callbackActions={this.props.callbackActions}/>
                   {/* Block/Container specific actions (override by the developers) */}
                   {/* Page Content */}
                   {_.isNull(content) || _.isUndefined(content) && _.isEmpty(index) ? 

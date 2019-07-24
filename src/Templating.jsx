@@ -105,23 +105,27 @@ class Templating extends Component {
    * @param type String is mandatory. Determines which type of creation to do
    * @param optional Object is optional. Pass parameters that are optionals or for a specific case (e.g blocks parameters)
    */
-  addItem = (type, optional) => {  
+  addItem = (type, optional) => new Promise(resolve => {
     let newIndex = this.state.index
+    let blocks = []
     switch(type) {
       case 'container': 
         newIndex = newIndex+1
         this.addContainer(newIndex, optional)
       break
       case 'block': 
-        this.addBlock(optional)
+        blocks = this.addBlock(optional)
       break
     }
 
     this.setState({
       ...this.state,
       index: newIndex
-    }, () => this.props.update({...this.formatTemplate(), type: 'addItem'}))
-  }
+    }, () => this.props.update({...this.formatTemplate(), type: 'addItem', index: newIndex}))
+  
+    return resolve({...this.formatTemplate(), type: 'addItem', index: newIndex, blocks: blocks})
+  }) 
+    
 
   /**
    * Add a new container which contains at start a button to add new contents
@@ -130,6 +134,8 @@ class Templating extends Component {
     /** get page, containers and the page index */
     let { page } = this.state
     let { containers, index } = page
+    /** Get optional parameters */
+    const { disableDelete } = optional
     /** Create a new index for the container based on the newIndex property */
     let id = 'container' + newIndex
     
@@ -139,6 +145,7 @@ class Templating extends Component {
       parameters: {
         //Default direction parameter for the drag'n'drop context.
         direction: 'horizontal',
+        disableDelete: !_.isNil(disableDelete) ? disableDelete : false
       },
       id: id,
       index: [],
@@ -172,15 +179,21 @@ class Templating extends Component {
     /** Get the page blocks and containers */
     let { page } = this.state
     let { blocks, containers } = page
+    /** Get optional parameters */
+    const { disableDelete } = optional
+    let ids = []
     /** Number of blocks to create */
     _.times(blockNumber, (index) => {
       /** Create a uniqID to avoid repetition of ID's in the blocks object */
       let uniqId = (containerIndex*10)+index
       let id = 'blocks'+uniqId
-
+      ids.push(id)
       const newBlocks = {
         type: 'block',
         id: id,
+        parameters: {
+          disableDelete: !_.isNil(disableDelete) ? disableDelete : false
+        },
         action: this.blockAction({optional, id}),
         content: null,
         structure: getSemanticAndCss({element: '.'+id, parent: '.'+parent, defaultParent: '.'+containerIndex}),
@@ -199,6 +212,8 @@ class Templating extends Component {
         }
       }, () => this.props.update({...this.formatTemplate(), type: 'addBlock'}))
     })
+
+    return ids
   }
 
   containerAction = (params) => {
@@ -237,11 +252,12 @@ class Templating extends Component {
   addContent = (params) => {
     let { page } = this.state
     let block = page.blocks[params.id]
-
-    let content = _.isFunction(this.props.addContent) ? 
+    let result = _.isFunction(this.props.addContent) ? 
       this.props.addContent(params)
-      : <div>Add function addContent to add content in here.</div>
-      block.content = content
+      : {content : (<div>Add function addContent to add content in here.</div>)}
+      block.content = result.content
+
+      block.parameters = {...block.parameters, ...result.parameters}
      /** setState */
     this.setState({
       ...this.state,
@@ -250,6 +266,7 @@ class Templating extends Component {
       }
     }, () => this.props.update({...this.formatTemplate(), type: 'addContent'}))
     
+    return Promise.resolve(true)
   }
 
   /**
@@ -258,7 +275,7 @@ class Templating extends Component {
   callbackActions = (params) => {
     let newState = this.state
     switch(params.type) {
-      case 'delete': 
+      case 'deleteAction': 
         newState = this.deleteComponent(params)
         break
       default:
@@ -308,17 +325,18 @@ class Templating extends Component {
 
   save = () => this.props.update({...this.formatTemplate(true), type: 'save'})
 
-  updatePage = (page) => {
+  updatePage = (page) => new Promise(resolve => {
     page = _.isEmpty(page) ? this.createStructure() : page
     page = {...page, actions: <React.Fragment>
-    <PopoverActions>
-      <Button onClick={() => this.addItem('container', {parent: 'page'})}>Add container</Button>
-      <Button onClick={this.save}>Save template</Button>
-    </PopoverActions>
-  </React.Fragment>}
+      <PopoverActions>
+        <Button onClick={() => this.addItem('container', {parent: 'page'})}>Add container</Button>
+        <Button onClick={this.save}>Save template</Button>
+      </PopoverActions>
+    </React.Fragment>}
 
-    this.setState({page, index: _.size(page.containers)}) 
-  }
+    this.setState({page, index: _.size(page.containers)}, () => resolve({page, index: _.size(page.containers)}))
+  }) 
+
   /**
    * Rendering function
    */
